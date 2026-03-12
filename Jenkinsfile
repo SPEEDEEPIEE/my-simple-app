@@ -2,15 +2,15 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'your_dockerhub_username/my-simple-app'
-        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
+        DOCKER_IMAGE = '23038/my-simple-app'
+        DOCKER_CREDENTIALS_ID = '2303823026'
     }
 
     stages {
         stage('Checkout Code') {
             steps {
                 git branch: 'main', 
-                url: 'https://github.com/your_username/your_repo.git'
+                url: 'https://github.com/SPEEDEEPIEE/my-simple-app.git'
             }
         }
 
@@ -63,7 +63,7 @@ pipeline {
     post {
         success {
             echo ' CI/CD цепочка успешно завершена!'
-            echo "Приложение доступно по адресу: http://ваш-ip-сервера"
+            echo "Приложение доступно по адресу: http://10.20.30.31:8081"
         }
         failure {
             echo ' Сборка или деплой завершились ошибкой'
