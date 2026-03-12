@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', 
+                git branch: 'master', 
                 url: 'https://github.com/SPEEDEEPIEE/my-simple-app.git'
             }
         }
