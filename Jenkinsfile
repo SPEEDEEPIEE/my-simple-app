@@ -1,16 +1,58 @@
 pipeline {
     agent any
 
+stage('Quality Gate') {
+    steps {
+        script {
+            // Проверка: есть ли тесты в изменённых файлах
+            def changedFiles = sh(script: 'git diff --name-only HEAD~1', returnStdout: true).trim()
+            if (changedFiles.contains('.php') && !changedFiles.contains('Test.php')) {
+                error(' Изменения в коде без соответствующих тестов!')
+            }
+            
+            // Проверка: размер Docker-образа не более 500MB
+            def imageSize = sh(script: "docker images ${DOCKER_IMAGE}:${BUILD_NUMBER} --format '{{.Size}}'", returnStdout: true).trim()
+            if (imageSize.contains('GB') || imageSize.toInteger() > 500) {
+                error(' Размер образа превышает лимит!')
+            }
+        }
+    }
+}
+
+
     environment {
         DOCKER_IMAGE = '23038/my-simple-app'
         DOCKER_CREDENTIALS_ID = '2303823026'
+        BRANCH_STRATEGY = "${env.GIT_BRANCH == 'main' ? 'release' : 'feature'}"
     }
+
+    stage('Configure Feature Flags') {
+    steps {
+        script {
+            if (env.GIT_BRANCH =~ /^feature\/.*/) {
+                sh 'echo "FEATURE_NEW_UI=true" >> .env'
+            } else {
+                sh 'echo "FEATURE_NEW_UI=false" >> .env'
+            }
+        }
+    }
+}
+
 
     stages {
         stage('Checkout Code') {
             steps {
                 git branch: 'master', 
                 url: 'https://github.com/SPEEDEEPIEE/my-simple-app.git'
+                script {
+                    if (env.GIT_BRANCH == 'master') {
+                        // Продакшен-пайплайн: полные тесты + безопасность
+                        sh 'echo "Running production pipeline"'
+                    } else {
+                        // Feature-пайплайн: быстрые тесты для обратной связи
+                        sh 'echo "Running feature pipeline"'
+                    }
+                }   
             }
         }
 

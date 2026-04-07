@@ -7,5 +7,16 @@
 <body>
     <h1>Привет от Jenkins и Docker!</h1>
     <p>Версия: BUILD_VERSION</p>
+    <div id="new-feature" style="display: none;">
+    <h2>🚀 Новая функция (в разработке)</h2>
+</div>
 </body>
+<script>
+    // Простая проверка флага
+    if (localStorage.getItem('feature_new_ui') === 'true') {
+        document.getElementById('new-feature').style.display = 'block';
+    }
+
+    
+</script>
 </html>
